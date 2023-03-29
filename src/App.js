@@ -14,17 +14,17 @@ const pokemonReducer = (state, action) => {
   switch (action.type) {
     case 'SET_FILTER':
       return {
-        ... state,
+        ...state,
         filter: action.payload,
       };
     case 'SET_POKEMON':
       return {
-        ... state,
+        ...state,
         pokemon: action.payload,
       };
     case 'SET_SELECTED_POKEMON':
       return {
-        ... state,
+        ...state,
         selectedPokemon: action.payload,
       };
     default:
