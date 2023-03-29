@@ -1,16 +1,23 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import CssBaseline from '@mui/material/CssBaseline';
+import { createStore } from 'redux';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 
 
 import PokemonInfo from "./components/PokemonInfo";
-import PokemonContext from "./PokemonContext";
 import PokemonFilter from "./components/PokemonFilter";
 import PokemonTable from "./components/PokemonTable";
 
 import "./App.css";
 
-const pokemonReducer = (state, action) => {
+const pokemonReducer = (
+  state = {
+    filter: '',
+    pokemon: [],
+    selectedPokemon: null
+  }, 
+  action) => {
   switch (action.type) {
     case 'SET_FILTER':
       return {
@@ -28,9 +35,11 @@ const pokemonReducer = (state, action) => {
         selectedPokemon: action.payload,
       };
     default:
-      throw new Error('No Action');
+      return state;
   }
 }
+
+const store = createStore(pokemonReducer);
 
 const Title = styled.h1`
   text-align: center;
@@ -47,45 +56,44 @@ const TwoColumnLayout = styled.div`
 `;
 
 function App() {
-  const [state, dispatch] = React.useReducer(pokemonReducer, {
-    filter: '',
-    pokemon: [],
-    selectedPokemon: null
-  })
+  const dispatch = useDispatch();
+  const pokemon = useSelector(state => state.pokemon);
 
   React.useEffect(() => {
-    fetch("http://localhost:3000/pokemon.json")
-      .then((resp) => resp.json())
-      .then((data) => dispatch({
+    const fetchPokemon = async () => {
+      const resp = await fetch("http://localhost:3000/pokemon.json");
+      const data = await resp.json();
+      return dispatch({
         type: 'SET_POKEMON',
         payload: data
-      }));
+      });
+    }
+    fetchPokemon();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!state.pokemon) {
+  if (!pokemon) {
     return <div>Loading data</div>;
   }
 
   return (
-    <PokemonContext.Provider
-      value={{
-        state,
-        dispatch
-      }}
-    >
-      <PageContainer>
-        <CssBaseline />
-        <Title>Pokemon Search</Title>
-        <TwoColumnLayout>
-          <div>
-            <PokemonFilter />
-            <PokemonTable />
-          </div>
-          <PokemonInfo />
-        </TwoColumnLayout>
-      </PageContainer>
-    </PokemonContext.Provider>
+    <PageContainer>
+      <CssBaseline />
+      <Title>Pokemon Search</Title>
+      <TwoColumnLayout>
+        <div>
+          <PokemonFilter />
+          <PokemonTable />
+        </div>
+        <PokemonInfo />
+      </TwoColumnLayout>
+    </PageContainer>
   );
 }
 
-export default App;
+// eslint-disable-next-line import/no-anonymous-default-export
+export default () => (
+  <Provider store={store}>
+    <App />
+  </Provider>
+);
