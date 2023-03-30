@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Button from '@mui/material/Button';
 
 import PokemonType from '../pokemonType';
@@ -23,7 +22,7 @@ const PokemonRow = ({ pokemon, onClick }) => (
 );
 
 PokemonRow.propTypes = {
-  pokemon: PropTypes.arrayOf(PokemonType),
+  pokemon: PokemonType,
 };
 
 export default PokemonRow;
